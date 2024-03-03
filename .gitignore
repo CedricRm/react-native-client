@@ -67,3 +67,6 @@ yarn-error.log
 
 # Env
 .env
+
+# VSCode config
+*.vscode
