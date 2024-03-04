@@ -4,3 +4,9 @@ export type Material = {
   state?: string;
   quantity?: number;
 };
+
+export const MaterialState = {
+  good: 'GOOD',
+  bad: 'BAD',
+  damaging: 'DAMAGING',
+};

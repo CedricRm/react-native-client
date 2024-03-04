@@ -1,118 +1,131 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import React, {useEffect, useState} from 'react';
+import {FlatList, SafeAreaView} from 'react-native';
+// import AddButton from './screens/components/AddButton';
+import AddButton from './screens/components/AddButton';
+import AddMaterialModal from './screens/components/AddMaterialModal';
+import MaterialCount from './screens/components/MaterialCount';
+import MaterialItem from './screens/components/MaterialItem';
+import RemoveMaterialModal from './screens/components/RemoveMaterialModal';
+import UpdateMaterialModal from './screens/components/UpdateMaterialModal';
+import useCreateMaterial from './screens/hooks/useCreateMaterial';
+import useFetchMaterials from './screens/hooks/useFetchMaterials';
+import useRemoveMaterial from './screens/hooks/useRemoveMaterial';
+import useUpdateMaterial from './screens/hooks/useUpdateMaterial';
+import {Material} from './screens/types';
+import {StyledText, StyledView} from './screens/utils/nativewind';
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [isCreateModalActive, setIsCreateModalActive] = useState(false);
+  const [isUpdateModalActive, setIsUpdateModalActive] = useState(false);
+  const [isRemoveModalActive, setIsRemoveModalActive] = useState(false);
+  const [activeMaterial, setActiveMaterial] = useState<Material>();
+  const {fetchAllMaterials, materials} = useFetchMaterials();
+  const {createMaterial} = useCreateMaterial();
+  const {updateMaterial} = useUpdateMaterial();
+  const {removeMaterial} = useRemoveMaterial();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handleCreateModal = () => {
+    setIsCreateModalActive(!isCreateModalActive);
+  };
+
+  const handleUpdateModal = () => {
+    setIsUpdateModalActive(!isUpdateModalActive);
+  };
+
+  const handleProcessUpdate = (material: Material) => {
+    setActiveMaterial(material);
+    handleUpdateModal();
+  };
+
+  const handleRemoveModal = () => {
+    setIsRemoveModalActive(!isRemoveModalActive);
+  };
+
+  const handleProcessRemove = (material: Material) => {
+    setActiveMaterial(material);
+    handleRemoveModal();
+  };
+
+  useEffect(() => {
+    fetchAllMaterials();
+  }, [fetchAllMaterials]);
+
+  const handleCreateMaterial = async (material: Material) => {
+    await createMaterial(material);
+    fetchAllMaterials();
+  };
+
+  const handleUpdateMaterial = async (material: any) => {
+    await updateMaterial(material.id, material);
+    fetchAllMaterials();
+  };
+
+  const handleRemoveMaterial = async (id: number) => {
+    await removeMaterial(id);
+    fetchAllMaterials();
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView>
+      <StyledView className="relative h-[100%] w-[100%]">
+        <StyledView className="p-3.5">
+          <StyledView className="flex">
+            <StyledText className="font-xl text-white bg-red p-2">
+              Liste des matériels
+            </StyledText>
+          </StyledView>
+          <StyledView className="w-full bg-grey-50">
+            {materials.length > 0 && (
+              <FlatList
+                data={materials}
+                renderItem={({item}) => (
+                  <MaterialItem
+                    id={item.id}
+                    design={item.design}
+                    quantity={item.quantity}
+                    state={item.state}
+                    handleProcessUpdate={handleProcessUpdate}
+                    handleProcessRemove={handleProcessRemove}
+                  />
+                )}
+                keyExtractor={item => item.id?.toString() || ''}
+              />
+            )}
+          </StyledView>
+          <StyledView className="mt-8">
+            <MaterialCount materials={materials} />
+          </StyledView>
+        </StyledView>
+        {/* Button to create material */}
+        {!isCreateModalActive && (
+          <AddButton handleCreateModal={handleCreateModal} />
+        )}
+        {/* Modal to create material */}
+        {isCreateModalActive && (
+          <AddMaterialModal
+            handleCreateModal={handleCreateModal}
+            createMaterial={handleCreateMaterial}
+          />
+        )}
+        {/* Modal to modify material */}
+        {isUpdateModalActive && (
+          <UpdateMaterialModal
+            handleUpdateModal={handleUpdateModal}
+            updateMaterial={handleUpdateMaterial}
+            material={activeMaterial}
+          />
+        )}
+        {/* Modal to remove material */}
+        {isRemoveModalActive && (
+          <RemoveMaterialModal
+            handleRemoveModal={handleRemoveModal}
+            removeMaterial={handleRemoveMaterial}
+            material={activeMaterial}
+          />
+        )}
+      </StyledView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
