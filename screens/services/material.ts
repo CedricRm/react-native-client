@@ -1,43 +1,28 @@
+import {REACT_NATIVE_MATERIAL_API} from '@env';
 import {Material} from '../types';
 import axiosInstance from '../utils/api';
-
-const REACT_NATIVE_MATERIAL_API = process.env.REACT_NATIVE_MATERIAL_API;
 
 /**
  * Get all materials
  * @returns {Promise<Materials[]>}
  */
 export const getAllMaterials = async (): Promise<Material[]> => {
-  try {
-    const res = await axiosInstance(
-      String(REACT_NATIVE_MATERIAL_API),
-      'get',
-      '',
-    );
-    return res;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const res = await axiosInstance(REACT_NATIVE_MATERIAL_API, 'get', 'material');
+  return res;
 };
 
 /**
  * Get material by id
  * @param id id of the material
- * @returns {Promise<Materials>}
+ * @returns {Promise<Material[]>}
  */
-export const getMaterialById = async (id: number): Promise<Material> => {
-  try {
-    const res = await axiosInstance(
-      String(REACT_NATIVE_MATERIAL_API),
-      'get',
-      `/${id}`,
-    );
-    return res;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+export const getMaterialById = async (id: number): Promise<Material[]> => {
+  const res = await axiosInstance(
+    REACT_NATIVE_MATERIAL_API,
+    'get',
+    `material/${id}`,
+  );
+  return res;
 };
 
 /**
@@ -45,17 +30,12 @@ export const getMaterialById = async (id: number): Promise<Material> => {
  * @returns {Promise<number>}
  */
 export const getTotalMaterials = async (): Promise<number> => {
-  try {
-    const res = await axiosInstance(
-      String(REACT_NATIVE_MATERIAL_API),
-      'get',
-      'count',
-    );
-    return res;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const res = await axiosInstance(
+    REACT_NATIVE_MATERIAL_API,
+    'get',
+    'material/count/stats',
+  );
+  return res;
 };
 
 /**
@@ -66,21 +46,16 @@ export const getTotalMaterials = async (): Promise<number> => {
 export const createMaterial = async (
   materialDatas: Material,
 ): Promise<Material> => {
-  try {
-    const post = await axiosInstance(
-      String(REACT_NATIVE_MATERIAL_API),
-      'post',
-      '',
-      {
-        'Content-Type': 'application/json',
-      },
-      materialDatas,
-    );
-    return post;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const post = await axiosInstance(
+    REACT_NATIVE_MATERIAL_API,
+    'post',
+    'material',
+    {
+      'Content-Type': 'application/json',
+    },
+    materialDatas,
+  );
+  return post;
 };
 
 /**
@@ -93,20 +68,16 @@ export const updateMaterial = async (
   materialId: number,
   materialDatas: Material,
 ): Promise<void> => {
-  try {
-    const post = await axiosInstance(
-      String(REACT_NATIVE_MATERIAL_API),
-      'patch',
-      `${materialId}`,
-      {
-        'Content-Type': 'application/json',
-      },
-      materialDatas,
-    );
-    return post;
-  } catch (error) {
-    console.error(error);
-  }
+  const post = await axiosInstance(
+    REACT_NATIVE_MATERIAL_API,
+    'patch',
+    `material/${materialId}`,
+    {
+      'Content-Type': 'application/json',
+    },
+    materialDatas,
+  );
+  return post;
 };
 
 /**
@@ -115,14 +86,10 @@ export const updateMaterial = async (
  * @returns {Promise<void>}
  */
 export const deleteMaterial = async (materialId: number): Promise<void> => {
-  try {
-    const res = await axiosInstance(
-      String(REACT_NATIVE_MATERIAL_API),
-      'delete',
-      `${materialId}`,
-    );
-    return res;
-  } catch (error) {
-    console.error(error);
-  }
+  const res = await axiosInstance(
+    REACT_NATIVE_MATERIAL_API,
+    'delete',
+    `material/${materialId}`,
+  );
+  return res;
 };

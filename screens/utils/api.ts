@@ -21,7 +21,7 @@ const axiosInstance = async (
     });
     return response.data; // Return the response data
   } catch (error: any) {
-    throw (error.response && error.response.data) || 'Something went wrong';
+    throw error || 'Something went wrong';
   }
 };
 
